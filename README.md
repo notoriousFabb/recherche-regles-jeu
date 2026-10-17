@@ -120,7 +120,7 @@ Exemple réel (octobre 2026) :
    - **PDF** : téléchargé avec son nom d'origine, puis vérifié (vrai PDF, nombre de pages). Les liens Google
      Drive se téléchargent directement ; un fichier qui demande d'être connecté (BoardGameGeek) passe par votre
      Chrome, ou vous est demandé.
-   - **Pages web** : voir [plus bas](#règles-pages-web--pdf).
+   - **Pages web** (pages Notion comprises) : voir [plus bas](#règles-pages-web--pdf).
 5. **Enregistrer** dans le dossier de dépôt, sous le nom d'origine (sinon `<Jeu>_regles.pdf`), **toujours en
    lettres latines** : un nom japonais est traduit, titre anglais officiel de préférence (« 夜連_説明書.pdf » →
    « Who follows me_Rules.pdf », « コスモショーファー_JP_Rule_v1.2.pdf » → « Cosmo Chauffeur_JP_Rule_v1.2.pdf ») ;
@@ -154,6 +154,26 @@ python -I -X utf8 scripts/page_pdf.py sortie.pdf URL --complet
   le début et la fin du texte avec la page web.
 
 Sous Windows, lancer le script depuis **PowerShell** : Git Bash transforme les arguments qui commencent par `//`.
+
+### Pages Notion
+Beaucoup de cercles japonais publient leurs règles sur une page **Notion**. Notion n'affiche que la partie
+visible d'une page (le reste se charge en défilant) et bloque le navigateur en arrière-plan : ni la lecture
+de la page ni son impression ne donnent tout. Claude passe alors par `scripts/notion_html.py` :
+
+```
+python -I -X utf8 scripts/notion_html.py "<lien de la page Notion>" regles.html
+python -I -X utf8 scripts/page_pdf.py sortie.pdf "file:///…/regles.html" --xpath "//body" --titre "Nom du jeu"
+```
+
+- Il lit **tous les blocs** de la page auprès de Notion (sans compte, comme un visiteur) : titres, paragraphes,
+  listes, encadrés, citations, tableaux, colonnes, images avec légende ; les blocs repliés sont dépliés.
+- Il écrit la page entière en HTML (avec le lien Notion en tête), que `page_pdf.py` met en PDF avec le même
+  contrôle d'intégralité.
+- Il signale les **sous-pages** non incluses (Claude les ajoute comme des pages de plus) et tout bloc d'un type
+  qu'il ne connaît pas (son texte est gardé).
+
+Exemple réel : *Break The Heart!* (OneMoreGame, Game Market automne 2026), règle publiée sur Notion → PDF de
+9 pages avec ses 13 illustrations, du résumé jusqu'aux crédits.
 
 ---
 
@@ -192,7 +212,8 @@ recherche-regles-jeu/
 ├── SKILL.md            instructions suivies par Claude
 ├── README.md           ce fichier
 └── scripts/
-    └── page_pdf.py     pages web → PDF, avec contrôle d'intégralité
+    ├── page_pdf.py     pages web → PDF, avec contrôle d'intégralité
+    └── notion_html.py  page Notion → HTML complet (tous les blocs), à passer ensuite à page_pdf.py
 ```
 
 ---
@@ -208,6 +229,8 @@ recherche-regles-jeu/
   livret scanné.
 - **Pages web** : le rendu suit la mise en page du navigateur, pas celle du site ; les vidéos et animations ne
   passent pas dans le PDF.
+- **Notion** : la page est mise en forme simplement (pas la présentation exacte de Notion) ; l'outil s'appuie
+  sur l'interface publique de Notion, qui peut changer. Une page privée ou protégée n'est pas lisible.
 - Testée sous **Windows** (Chrome, PowerShell) ; le script cherche aussi Chrome et Edge sur macOS et Linux.
 
 ---
