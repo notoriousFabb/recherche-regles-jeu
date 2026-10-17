@@ -121,8 +121,11 @@ Exemple réel (octobre 2026) :
      Drive se téléchargent directement ; un fichier qui demande d'être connecté (BoardGameGeek) passe par votre
      Chrome, ou vous est demandé.
    - **Pages web** : voir [plus bas](#règles-pages-web--pdf).
-5. **Enregistrer** dans le dossier de dépôt, sous le nom d'origine (sinon `<Jeu>_regles.pdf`). Un fichier du
-   même nom existe déjà → elle demande (remplacer ou garder les deux).
+5. **Enregistrer** dans le dossier de dépôt, sous le nom d'origine (sinon `<Jeu>_regles.pdf`), **toujours en
+   lettres latines** : un nom japonais est traduit, titre anglais officiel de préférence (« 夜連_説明書.pdf » →
+   « Who follows me_Rules.pdf », « コスモショーファー_JP_Rule_v1.2.pdf » → « Cosmo Chauffeur_JP_Rule_v1.2.pdf ») ;
+   le nom d'origine est gardé dans la note du jeu. Un fichier du même nom existe déjà → elle demande
+   (remplacer ou garder les deux).
 6. **Garder les liens** dans la [note du jeu](#la-note-du-jeu).
 7. **Bilan** (chemin complet du fichier, source, langue, pages, réserves) et **proposition de traduction**.
 

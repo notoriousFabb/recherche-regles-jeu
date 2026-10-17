@@ -126,6 +126,12 @@ Dossier de travail : `<scratchpad>/regles/<jeu>/`, vide au départ.
 ### 5. Enregistrer
 - Nom : le nom du fichier d'origine s'il est clair, sinon `<Nom du jeu>_regles.pdf` (`_regles_<langue>` si
   plusieurs langues ; caractères interdits par Windows retirés).
+- **Toujours en lettres latines** : nom d'origine en japonais, chinois, coréen… → le titre `<Jeu>` de
+  l'étape 6 (titre anglais officiel s'il existe, sinon la romanisation imprimée), puis les autres mots du nom
+  traduits en anglais (説明書, ルール, ルールブック → `Rules` ; 正誤表 → `Errata` ; 拡張 → `Expansion` ;
+  サマリー → `Summary`), en gardant langue, version et date (`_JP`, `v1.2`) : `コスモショーファー_JP_Rule_v1.2.pdf`
+  → `Cosmo Chauffeur_JP_Rule_v1.2.pdf`, `夜連_説明書.pdf` → `Who follows me_Rules.pdf`. Même règle que la skill
+  de traduction (qui refuse un nom non latin) ; le nom d'origine est noté dans la note du jeu.
 - Un fichier de même nom existe déjà dans le dossier d'enregistrement : demander (remplacer, ou garder les
   deux avec un suffixe). Sinon copier le PDF dans le dossier d'enregistrement.
 - Vérifier qu'il s'ouvre depuis cet emplacement (nombre de pages).
@@ -144,7 +150,7 @@ Les liens trouvés servent ensuite à la skill traduction-regles-jeu, même si l
   ## Sources (recherche-regles-jeu, <date du jour>)
   - Jeu : <titre d'origine> (<lecture>), <auteur>, <éditeur / cercle>, <sortie>
   - Fiche Game Market : <lien>  ·  BGG : <lien>  ·  Éditeur : <lien>
-  - Livret enregistré : <nom du fichier> — <langue>, officiel / fan — <lien de téléchargement>
+  - Livret enregistré : <nom du fichier> (nom d'origine : <nom si renommé>) — <langue>, officiel / fan — <lien de téléchargement>
   - Manuel d'origine (jeu japonais) : <lien>
   - Autres versions trouvées, non retenues : <langue / édition> — <lien>
   - Titre japonais lu sur : <source, par exemple vidéo au chapitre du jeu> — <lien>
