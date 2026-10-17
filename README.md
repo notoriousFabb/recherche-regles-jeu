@@ -159,9 +159,10 @@ marquée « recommandé » ; le choix reste le vôtre, et le lien du manuel japo
      téléchargé avant.
    - jeu japonais pris dans une autre langue → signalé ; le lien du manuel japonais est gardé quand même.
 4. **Récupérer** dans un dossier temporaire :
-   - **PDF** : téléchargé avec son nom d'origine, puis vérifié (vrai PDF, nombre de pages). Les liens Google
-     Drive se téléchargent directement ; un fichier qui demande d'être connecté (BoardGameGeek) passe par votre
-     Chrome, ou vous est demandé.
+   - **PDF** : téléchargé par `telecharger.py`, qui donne en une ligne le nombre de pages et le nom d'origine
+     (ou dit que ce n'est pas un PDF). Les liens Google Drive se téléchargent directement, même les gros
+     fichiers ; un fichier qui demande d'être connecté (BoardGameGeek) passe par votre Chrome, ou vous est
+     demandé.
    - **Pages web** (pages Notion comprises) : voir [plus bas](#règles-pages-web--pdf).
 5. **Enregistrer** dans le dossier de dépôt, sous le nom d'origine (sinon `<Jeu>_regles.pdf`), **toujours en
    lettres latines** : un nom japonais est traduit, titre anglais officiel de préférence (« 夜連_説明書.pdf » →
@@ -267,13 +268,22 @@ section « Sources » de `NOTES.md` (sinon elle refait simplement la recherche d
 ## Contenu du dépôt
 ```
 recherche-regles-jeu/
-├── SKILL.md            instructions suivies par Claude
+├── SKILL.md            instructions suivies par Claude (le déroulement courant)
 ├── README.md           ce fichier
+├── references/         instructions lues seulement dans le cas concerné
+│   ├── pages-web.md      règles sur des pages web (et Notion) → PDF
+│   ├── introuvable.md    jeu japonais introuvable par son nom latin (YouTube, boîte, index)
+│   └── plusieurs-jeux.md liste de plusieurs jeux d'un coup
 └── scripts/
+    ├── telecharger.py  téléchargement d'un PDF (Google Drive compris) : pages et nom d'origine en une ligne
     ├── page_pdf.py     pages web → PDF, avec contrôle d'intégralité
     ├── notion_html.py  page Notion → HTML complet (tous les blocs), à passer ensuite à page_pdf.py
     └── fiche_gm.py     Game Market : recherche par mot et lecture d'une fiche (texte et liens bruts)
 ```
+
+`SKILL.md` est relu en entier à chaque recherche : il ne garde que l'essentiel, et les cas particuliers sont
+dans `references/`, lus seulement quand ils servent (moins de tokens consommés). Dans le navigateur, les pages
+sont lues en texte plutôt qu'en captures d'écran, pour la même raison.
 
 ---
 
