@@ -26,15 +26,18 @@ L'utilisateur parle français et ne touche pas aux scripts. Réponds-lui en fran
 - **Résumés de moteur et aperçus IA** : de simples pistes, souvent fausses en partie (éditeur inventé, etc.).
   Ne garder que ce qu'une page source confirme ; dire à l'utilisateur quand une piste qu'il a donnée est fausse.
 - **Économiser les captures d'écran** : dans Chrome, lire les pages en texte (`get_page_text`, `find` ou
-  JavaScript) ; une capture seulement pour lire une image (boîte du jeu) ou contrôler un rendu.
+  JavaScript) ; une capture seulement pour lire une image (boîte du jeu) ou contrôler un rendu. Un résultat
+  JavaScript qui contient une adresse avec `?…` est bloqué : n'en renvoyer que l'identifiant (regex) ;
+  changer de page avec l'outil de navigation, pas avec `location.href`.
 
 ## Méthode
 
 ### 1. Premier tour (deux recherches dans le même message)
 - **Game Market avec le nom tel quel** : `python -I -X utf8 <skill>/scripts/fiche_gm.py chercher "<nom>"`
   (beaucoup de fiches portent aussi le titre latin : « ヒャクジュウパレード 【HYAKUJU PARADE】 »). Fiche
-  trouvée : `fiche_gm.py fiche <numéro>` donne ses informations et **tous ses liens tels quels** (Drive,
-  Notion, site, X) — plus fiable que WebFetch.
+  trouvée : `fiche_gm.py fiche <numéro>` donne ses informations, **tous ses liens tels quels** (Drive,
+  Notion, site, X) et les images / PDF du texte (★ = nom de livret : manuel publié en images sur la fiche)
+  — plus fiable que WebFetch. `fiche_gm.py cercle <numéro>` liste tous les jeux d'un cercle.
 - **Recherche web** : `<nom> game rules` (ou `rulebook`).
 - **Ne jamais deviner l'écriture japonaise d'un titre romanisé** : n'employer un titre japonais que s'il a été
   lu sur une source (fiche Game Market, BGG, éditeur, vidéo).
@@ -67,6 +70,11 @@ connu. Même fichier à plusieurs endroits = une seule option (garder le lien de
 Dossier de travail : `<scratchpad>/regles/<jeu>/`, vide au départ.
 - **PDF** : `python -I -X utf8 <skill>/scripts/telecharger.py "<lien>" "<travail>"` (liens Google Drive
   convertis tout seuls). Bilan en une ligne : chemin, pages, nom d'origine (à reprendre à l'étape 5).
+  **Dossier Google Drive** : le même appel liste ses fichiers (nom, lien) ; relancer avec ceux choisis.
+  **Règles en images** (JPEG / PNG : dossier Drive, images ★ d'une fiche Game Market) : donner tous les liens
+  dans l'ordre de lecture, `telecharger.py "<image 1>" "<image 2>" … "<travail>"` → un seul PDF, une image
+  par page, sans modification ; « ALERTE : petite image » = le dire à l'utilisateur. Ordre incertain (règles /
+  histoire) : garder celui de la source et le noter.
   « REFUSÉ » ou « PAS UN PDF » (connexion demandée, BGG notamment) : télécharger avec Chrome (l'utilisateur y
   est connecté), sinon lui demander de le faire et de dire où il l'a mis ; Drive toujours bloqué : suivre
   `references/en-ligne.md` de traduction-regles-jeu (avec son accord). Le fichier n'est jamais modifié.

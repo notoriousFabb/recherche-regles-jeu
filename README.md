@@ -134,8 +134,9 @@ marquée « recommandé » ; le choix reste le vôtre, et le lien du manuel japo
 1. **Premier tour** (en même temps) : recherche sur Game Market avec le nom exact donné, et recherche web
    générale. Beaucoup de fiches Game Market portent aussi le titre en lettres latines : le nom romanisé les
    trouve du premier coup. Game Market est lu par un petit outil (`fiche_gm.py`) qui donne la liste des jeux
-   trouvés, puis le contenu de la fiche et **tous ses liens tels quels** (règles sur Drive, Notion, site de
-   l'auteur…), sans passer par un résumé.
+   trouvés, puis le contenu de la fiche, **tous ses liens tels quels** (règles sur Drive, Notion, site de
+   l'auteur…) et les images et PDF du texte, sans passer par un résumé : un manuel publié en images sur la
+   fiche est repéré (★). Il liste aussi tous les jeux d'un cercle (`fiche_gm.py cercle <numéro>`).
 2. **Compléter** : Game Market avec les autres titres lus sur les sources, BoardGameGeek (onglet « Files », par
    le navigateur), site de l'éditeur, autres recherches web (`rules pdf`, `説明書`, `ルール`, `Spielregel`…).
    Les « vous vouliez peut-être dire… » des moteurs de recherche sont ignorés : seule compte une page qui nomme
@@ -148,6 +149,10 @@ marquée « recommandé » ; le choix reste le vôtre, et le lien du manuel japo
      ouvre la vidéo au chapitre et **lit le titre japonais sur la boîte**. Puis elle cherche ce titre (ou un
      mot distinctif) sur Game Market. Exemple : « Cosmo Chauffeur » → boîte « コスモ・ショーファー » dans le
      top 20 de ThinkerThemer → fiche Game Market trouvée avec « ショーファー » → règle officielle en PDF.
+   - **Jeu cité en passant dans une vidéo** : la skill cherche son nom dans la **transcription** (texte, bien
+     moins coûteux qu'une capture). Si elle apprend qu'il vient du même auteur ou du même cercle qu'un jeu
+     connu, elle liste les jeux de ce cercle. Exemple : « Escape to Cosmo » → transcription (« second jeu de
+     l'auteur de Cosmo Chauffeur ») → jeux du cercle → fiche « エスケープ・トゥ・コスモ » → règle en PDF.
    - **Index du Game Market** : les chapitres d'une vidéo « top 20 » donnent les titres de tous ses jeux. La
      skill les garde dans `_outils/game-market-<année>-<saison>.md` (titre latin, titre japonais, chapitre,
      fiche, règles récupérées) et y regarde en premier pour les recherches suivantes du même Game Market.
@@ -162,7 +167,11 @@ marquée « recommandé » ; le choix reste le vôtre, et le lien du manuel japo
    - **PDF** : téléchargé par `telecharger.py`, qui donne en une ligne le nombre de pages et le nom d'origine
      (ou dit que ce n'est pas un PDF). Les liens Google Drive se téléchargent directement, même les gros
      fichiers ; un fichier qui demande d'être connecté (BoardGameGeek) passe par votre Chrome, ou vous est
-     demandé.
+     demandé. Un lien de **dossier** Google Drive donne la liste de ses fichiers, pour choisir lesquels prendre.
+   - **Règles publiées en images** (dossier Drive, manuel en images sur une fiche Game Market) : les images
+     sont téléchargées et assemblées dans l'ordre en un seul PDF, une par page, sans modification (taille de
+     page tirée de l'image : un manuel A4 donne un PDF A4). Une image trop petite pour être bien lue est
+     signalée.
    - **Pages web** (pages Notion comprises) : voir [plus bas](#règles-pages-web--pdf).
 5. **Enregistrer** dans le dossier de dépôt, sous le nom d'origine (sinon `<Jeu>_regles.pdf`), **toujours en
    lettres latines** : un nom japonais est traduit, titre anglais officiel de préférence (« 夜連_説明書.pdf » →
@@ -275,10 +284,10 @@ recherche-regles-jeu/
 │   ├── introuvable.md    jeu japonais introuvable par son nom latin (YouTube, boîte, index)
 │   └── plusieurs-jeux.md liste de plusieurs jeux d'un coup
 └── scripts/
-    ├── telecharger.py  téléchargement d'un PDF (Google Drive compris) : pages et nom d'origine en une ligne
+    ├── telecharger.py  téléchargement d'un PDF (Google Drive compris), liste d'un dossier Drive, images → PDF
     ├── page_pdf.py     pages web → PDF, avec contrôle d'intégralité
     ├── notion_html.py  page Notion → HTML complet (tous les blocs), à passer ensuite à page_pdf.py
-    └── fiche_gm.py     Game Market : recherche par mot et lecture d'une fiche (texte et liens bruts)
+    └── fiche_gm.py     Game Market : recherche par mot, lecture d'une fiche (texte, liens, images), jeux d'un cercle
 ```
 
 `SKILL.md` est relu en entier à chaque recherche : il ne garde que l'essentiel, et les cas particuliers sont

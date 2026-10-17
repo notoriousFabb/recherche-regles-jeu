@@ -1,7 +1,8 @@
 """Tokyo Game Market : recherche et lecture d'une fiche de jeu, depuis le contenu brut des pages.
 
     python -I -X utf8 fiche_gm.py chercher "<mot ou titre>"    liste des jeux trouvés (titre, lien, cercle)
-    python -I -X utf8 fiche_gm.py fiche <numéro ou lien>        informations et liens de la fiche
+    python -I -X utf8 fiche_gm.py fiche <numéro ou lien>        informations, liens, images et PDF de la fiche
+    python -I -X utf8 fiche_gm.py cercle <numéro ou lien>       jeux d'un cercle (/booth/NNN), titres compris
 
 Plus fiable que le résumé d'une page par l'outil de lecture web : rien n'est réinterprété, et tous les liens
 (règles, Drive, Notion, site, X) sont donnés tels quels.
@@ -66,9 +67,42 @@ def fiche(ref):
             continue
         vus.add(h)
         print(f"- {net(a) or '(sans texte)'} : {h}")
+    # Livrets parfois publiés en images ou en PDF dans le texte de la fiche (pas toujours en lien)
+    zone = d.xpath('//*[contains(text(),"ゲーム詳細")]/ancestor::*[.//img][1]') or [d]
+    fichiers = []
+    for el in zone[0].xpath(".//img[@src] | .//iframe[@src] | .//embed[@src] | .//object[@data]"):
+        u = (el.get("src") or el.get("data")).strip()
+        if u not in vus and re.search(r"img\.gamemarket\.jp|\.pdf", u, re.I):
+            vus.add(u)
+            fichiers.append(u)
+    if fichiers:
+        print("\nImages et PDF du texte (ordre de la fiche ; ★ = nom de livret) :")
+        for u in fichiers:
+            livret = re.search(r"manual|rule|説明書|ルール|%E8%AA%AC%E6%98%8E", u, re.I)
+            print(f"- {'★ ' if livret else ''}{u}")
+
+
+def cercle(ref):
+    n = re.search(r"(\d+)\s*$", ref.rstrip("/"))
+    if not n:
+        sys.exit("ERREUR : numéro de cercle introuvable.")
+    url = f"{SITE}/booth/game/{n.group(1)}"
+    d = page(url)
+    print(f"Cercle : {SITE}/booth/{n.group(1)}")
+    vus = set()
+    for a in d.xpath('//a[starts-with(@href,"/game/")]'):
+        h = a.get("href")
+        if not re.fullmatch(r"/game/\d+", h) or h in vus:
+            continue
+        vus.add(h)
+        bloc = a
+        while bloc is not None and not net(bloc):
+            bloc = bloc.getparent()
+        print(f"- {net(bloc)[:150] if bloc is not None else ''}\n  {SITE}{h}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3 or sys.argv[1] not in ("chercher", "fiche"):
+    actions = {"chercher": chercher, "fiche": fiche, "cercle": cercle}
+    if len(sys.argv) != 3 or sys.argv[1] not in actions:
         sys.exit(__doc__)
-    (chercher if sys.argv[1] == "chercher" else fiche)(sys.argv[2])
+    actions[sys.argv[1]](sys.argv[2])

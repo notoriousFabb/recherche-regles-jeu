@@ -17,12 +17,22 @@ Avant de conclure « aucun résultat » :
    en texte) donne les titres de tous ses jeux. Les garder dans le fichier d'index ci-dessus (tableau : titre
    latin, titre japonais, chapitre, fiche, règles récupérées) ; quand un jeu de l'index est trouvé, compléter
    sa ligne.
-3. **Lire le titre sur la boîte** (seulement si le chapitre ne le donne pas) : ouvrir la vidéo au chapitre,
+3. **Transcription de la vidéo** (texte, bien moins cher qu'une capture) : un jeu cité en passant n'a pas
+   de chapitre (« Escape to Cosmos » : second jeu de l'auteur de Cosmo Chauffeur, dans le même chapitre).
+   Ouvrir la vidéo, puis (JavaScript) mettre en pause, déplier la description (`#expand`), cliquer le bouton
+   dont le texte contient « transcription » / « transcript », attendre ~3 s, et chercher le nom (regex,
+   orthographes proches) dans le texte des blocs `ytd-transcript-segment-renderer,
+   transcript-segment-view-model`, en renvoyant la ligne d'avant et d'après. Ce qui y est dit (auteur,
+   cercle, type de jeu) donne la piste, pas le titre japonais.
+4. **Même auteur ou même cercle** : une piste « du même auteur / cercle que X » (transcription, BGG, X) →
+   `fiche_gm.py cercle <numéro du cercle de X>` liste tous ses jeux, titres japonais compris ; le nouveau jeu
+   est le plus souvent en tête.
+5. **Lire le titre sur la boîte** (seulement si rien de ce qui précède ne le donne) : ouvrir la vidéo au chapitre,
    puis (JavaScript) `v=document.querySelector('video'); v.muted=true; v.currentTime=<secondes>; v.pause()`,
    **une** capture, zoom sur la boîte. Titre, auteur et illustrateur (souvent imprimés en bas) comptent comme
    « lus sur une source ».
-4. **Game Market avec ce titre** : chercher aussi un **mot seul et distinctif** du titre, sans `・` ni espaces
+6. **Game Market avec ce titre** : chercher aussi un **mot seul et distinctif** du titre, sans `・` ni espaces
    (`ショーファー` plutôt que `コスモ・ショーファー`). Un mot trop courant (`パレード`, `コスモ`) donne trop de
    résultats.
-5. Toujours rien : dire où et avec quels noms on a cherché, et demander une piste (titre de la boîte,
+7. Toujours rien : dire où et avec quels noms on a cherché, et demander une piste (titre de la boîte,
    éditeur, auteur, lien, vidéo où le jeu apparaît).
