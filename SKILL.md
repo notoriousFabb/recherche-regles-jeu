@@ -135,27 +135,39 @@ Dossier de travail : `<scratchpad>/regles/<jeu>/`, vide au départ.
   de dire où il l'a mis. Le fichier n'est pas modifié.
 - **Pages web** :
   1. Lire la page (WebFetch, ou Chrome si elle se construit en JavaScript ou refuse la lecture simple) pour
-     repérer **toutes** les pages des règles (sommaire, « page suivante », onglets) dans l'ordre de lecture, et le bloc de la page qui
-     contient les règles, sous forme d'XPath (`//article`, `//main`, `//*[@id="rules"]`,
-     `//div[contains(@class,"entry-content")]`). Pas de menus, pieds de page, commentaires ni publicités ;
-     mais tout le texte des règles, images, tableaux, encadrés et exemples compris.
-  2. `python -I -X utf8 <skill>/scripts/page_pdf.py "<travail>/<nom>.pdf" "<url1>" ["<url2>" …] --xpath "<xpath>" --titre "<Nom du jeu>"`
-     À lancer depuis **PowerShell** (Git Bash transforme les arguments qui commencent par `//`). Pages de
-     sites différents : réunir leurs blocs dans un seul XPath (`//main | //div[@id="rules"]`). Un XPath qui
-     ne trouve rien sur une des pages arrête le script avec « ERREUR : ».
-     (`--complet` à la place de `--xpath` : la page entière telle qu'imprimée par le navigateur, pour une page
-     qui ne contient que les règles.)
+     repérer **toutes** les pages des règles (sommaire, « page suivante », onglets) dans l'ordre de lecture.
+  2. **Par défaut, garder la mise en page du site** (en-tête, pied de page, couleur et images de fond,
+     polices, images à leur place) :
+     `python -I -X utf8 <skill>/scripts/page_pdf.py "<travail>/<nom>.pdf" "<url1>" ["<url2>" …] --fidele --titre "<Nom du jeu>"`
+     Le site est affiché à `--largeur` pixels (1280 par défaut, mise en page « ordinateur »), puis chaque page
+     est recadrée sur la colonne du contenu (marges vides du site retirées : texte plus grand une fois
+     imprimé), en proportions A4, avec la couleur de fond du site jusqu'en bas et un numéro de page discret.
+     Paragraphes, images et titres ne sont jamais coupés ; un bloc du site qui ne se coupe pas (section de
+     Google Sites) peut laisser le bas d'une page vide. Le script télécharge aussi les images à part (Google
+     Sites interdit de les afficher ailleurs), retire les bannières de cookies et ne répète pas les barres de
+     menu épinglées sur chaque page. Textes posés sur le bandeau pleine largeur (nom du site, menu) : hors
+     de la colonne, ils sont coupés par le recadrage.
+     **Seulement si la page contient beaucoup d'autre chose que les règles** (blog avec commentaires, publicités,
+     plusieurs jeux sur la même page), ou si le rendu fidèle est raté : ne garder que le bloc des règles, dans
+     une mise en page simple, avec `--xpath "<xpath>"` à la place de `--fidele` (`//article`, `//main`,
+     `//*[@id="rules"]`, `//div[contains(@class,"entry-content")]` ; pages de sites différents : un seul XPath
+     `//main | //div[@id="rules"]`). Le dire à l'utilisateur.
+     À lancer depuis **PowerShell** (Git Bash transforme les arguments qui commencent par `//`).
+     Dans tous les modes : aucun lien cliquable dans le PDF (sommaire compris) et pas de ligne « Source »
+     ajoutée ; le lien de la page va dans la note du jeu (étape 6).
      **Page Notion** (`*.notion.site`, `notion.so`, `app.notion.com`) : Notion n'affiche que la partie visible
      (le reste se charge en défilant) et bloque le navigateur en arrière-plan ; ni la lecture de la page ni
-     `--complet` ne donnent tout. Passer par `scripts/notion_html.py`, qui lit tous les blocs auprès de Notion
+     `--fidele` ne donnent tout. Passer par `scripts/notion_html.py`, qui lit tous les blocs auprès de Notion
      (sans compte, blocs repliés dépliés) et écrit la page entière en HTML, puis convertir ce fichier :
      `python -I -X utf8 <skill>/scripts/notion_html.py "<lien Notion>" "<travail>/regles.html"`, puis
      `page_pdf.py "<travail>/<nom>.pdf" "file:///<travail>/regles.html" --xpath "//body" --titre "<Nom du jeu>"`.
      Il signale les sous-pages non incluses (à traiter comme des pages de plus) et les blocs d'un type inconnu.
-  3. Vérifier le bilan du script : caractères de la source et du PDF (alerte sous 95 %), images de la source
-     et du PDF. Regarder ensuite une planche des pages du PDF à ~60 dpi (images, tableaux, rien de coupé), et
-     comparer le début et la fin du texte du PDF avec la page web. Corriger l'XPath ou ajouter une page
-     oubliée et relancer si besoin.
+  3. Vérifier le bilan du script : caractères de la source et du PDF (alerte sous 95 % ; sous 90 % en mode
+     `--fidele`, où la source compte aussi menus cachés et textes du bandeau), images de la source et du
+     PDF, images non téléchargées, liens restants. Regarder ensuite une planche des pages du PDF à ~60 dpi
+     (images, tableaux, rien de coupé, pas de barre ni de bannière répétée sur chaque page), et comparer le
+     début et la fin du texte du PDF avec la page web. Corriger (XPath, page oubliée, `--largeur`) et
+     relancer si besoin.
 
 ### 5. Enregistrer
 - Nom : le nom du fichier d'origine s'il est clair, sinon `<Nom du jeu>_regles.pdf` (`_regles_<langue>` si

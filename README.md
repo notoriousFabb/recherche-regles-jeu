@@ -161,16 +161,27 @@ propres consignes avec la page (vérifié sur les fiches Game Market, qui n'en c
 
 ## Règles pages web → PDF
 Quand les règles sont affichées sur des pages web, Claude repère toutes les pages des règles (sommaire,
-« page suivante », onglets) dans l'ordre de lecture et le bloc de la page qui les contient, puis lance :
+« page suivante », onglets) dans l'ordre de lecture, puis lance :
 
 ```
+python -I -X utf8 scripts/page_pdf.py sortie.pdf URL1 [URL2 …] --fidele --titre "Nom du jeu"
 python -I -X utf8 scripts/page_pdf.py sortie.pdf URL1 [URL2 …] --xpath "//article" --titre "Nom du jeu"
 python -I -X utf8 scripts/page_pdf.py sortie.pdf URL --complet
 ```
 
-- `--xpath` : seul le bloc des règles est gardé (pas de menus, pieds de page, commentaires ni publicités) ;
-  plusieurs pages sont réunies dans un seul PDF, chacune commençant sur une nouvelle page avec son adresse.
-- `--complet` : la page entière telle que le navigateur l'imprime, pour une page qui ne contient que les règles.
+- `--fidele` (par défaut) : la page **avec la mise en page du site**, aussi proche que possible de l'écran :
+  en-tête, pied de page, couleur et images de fond, polices, images à leur place. Le site est affiché en
+  version « ordinateur » (`--largeur`, 1280 pixels par défaut), puis les pages sont recadrées sur la colonne
+  du contenu (texte plus grand une fois imprimé), en proportions A4, avec le fond du site jusqu'en bas et un
+  numéro de page. Paragraphes, images et titres ne sont jamais coupés. Les images sont téléchargées à part
+  (Google Sites interdit de les afficher ailleurs que sur sa page), les bannières de cookies sont retirées,
+  et les barres de menu épinglées ne sont pas répétées sur chaque page.
+- `--xpath` : seul le bloc des règles est gardé, dans une mise en page simple (noir sur blanc), pour une page
+  qui contient beaucoup d'autre chose (commentaires, publicités, plusieurs jeux) ; plusieurs pages sont
+  réunies dans un seul PDF, chacune commençant sur une nouvelle page.
+- `--complet` : la page entière telle que le navigateur l'imprime, sans autre traitement.
+- Dans tous les modes, le PDF ne contient **aucun lien cliquable** (sommaire compris) ni ligne « Source » :
+  l'adresse de la page est gardée dans la note du jeu.
 - Les pages sont affichées par Chrome ou Edge en arrière-plan : les contenus construits en JavaScript et les
   images chargées à la demande sont pris en compte.
 - **Contrôle d'intégralité** : le script compare le nombre de caractères et d'images de la source et du PDF, et
@@ -191,7 +202,7 @@ python -I -X utf8 scripts/page_pdf.py sortie.pdf "file:///…/regles.html" --xpa
 
 - Il lit **tous les blocs** de la page auprès de Notion (sans compte, comme un visiteur) : titres, paragraphes,
   listes, encadrés, citations, tableaux, colonnes, images avec légende ; les blocs repliés sont dépliés.
-- Il écrit la page entière en HTML (avec le lien Notion en tête), que `page_pdf.py` met en PDF avec le même
+- Il écrit la page entière en HTML, que `page_pdf.py` met en PDF avec le même
   contrôle d'intégralité.
 - Il signale les **sous-pages** non incluses (Claude les ajoute comme des pages de plus) et tout bloc d'un type
   qu'il ne connaît pas (son texte est gardé).
