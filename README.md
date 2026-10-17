@@ -92,12 +92,27 @@ Exemple réel (octobre 2026) :
 > du fichier de l'éditeur). Liens gardés dans `…\_outils\Hyakuju Parade\NOTES.md`. Voulez-vous que je lance la
 > traduction ?
 
+**Plusieurs jeux d'un coup** : donnez une liste.
+
+```
+/recherche-regles-jeu Bird Club, Break The Heart, Kubaru Te Miru Me
+```
+
+La skill cherche chaque jeu, vous pose **en une seule fois** les questions de choix de version (une par jeu),
+récupère tout sans s'arrêter, puis fait **un seul bilan** (tableau : jeu, fichier, langue, pages, source,
+réserves) et une seule proposition de traduction (tous, certains ou aucun).
+
+**Version anglaise** : quand un jeu japonais a une règle anglaise officielle, elle est proposée en premier et
+marquée « recommandé » ; le choix reste le vôtre, et le lien du manuel japonais est toujours gardé.
+
 ---
 
 ## Déroulement d'une recherche
 1. **Premier tour** (en même temps) : recherche sur Game Market avec le nom exact donné, et recherche web
    générale. Beaucoup de fiches Game Market portent aussi le titre en lettres latines : le nom romanisé les
-   trouve du premier coup.
+   trouve du premier coup. Game Market est lu par un petit outil (`fiche_gm.py`) qui donne la liste des jeux
+   trouvés, puis le contenu de la fiche et **tous ses liens tels quels** (règles sur Drive, Notion, site de
+   l'auteur…), sans passer par un résumé.
 2. **Compléter** : Game Market avec les autres titres lus sur les sources, BoardGameGeek (onglet « Files », par
    le navigateur), site de l'éditeur, autres recherches web (`rules pdf`, `説明書`, `ルール`, `Spielregel`…).
    Les « vous vouliez peut-être dire… » des moteurs de recherche sont ignorés : seule compte une page qui nomme
@@ -105,10 +120,14 @@ Exemple réel (octobre 2026) :
    sources.
    - **Jeu japonais tout récent, introuvable par son nom en lettres latines** : la fiche Game Market n'a
      souvent que le titre japonais. La skill cherche alors le nom entre guillemets sur YouTube, où les vidéos
-     de présentation du Game Market ont un chapitre par jeu, ouvre la vidéo à ce chapitre, **lit le titre
-     japonais sur la boîte**, puis cherche ce titre (ou un mot distinctif) sur Game Market. Exemple :
-     « Cosmo Chauffeur » → boîte « コスモ・ショーファー » dans le top 20 de ThinkerThemer → fiche Game Market
-     trouvée avec « ショーファー » → règle officielle en PDF.
+     de présentation du Game Market ont un chapitre par jeu. Elle lit d'abord **le titre du chapitre dans les
+     résultats**, qui donne souvent le titre japonais (« Kubaru Te Miru Me (配る手見る目) ») ; sinon elle
+     ouvre la vidéo au chapitre et **lit le titre japonais sur la boîte**. Puis elle cherche ce titre (ou un
+     mot distinctif) sur Game Market. Exemple : « Cosmo Chauffeur » → boîte « コスモ・ショーファー » dans le
+     top 20 de ThinkerThemer → fiche Game Market trouvée avec « ショーファー » → règle officielle en PDF.
+   - **Index du Game Market** : les chapitres d'une vidéo « top 20 » donnent les titres de tous ses jeux. La
+     skill les garde dans `_outils/game-market-<année>-<saison>.md` (titre latin, titre japonais, chapitre,
+     fiche, règles récupérées) et y regarde en premier pour les recherches suivantes du même Game Market.
 3. **Faire le point** : pour chaque version, titre / édition, langue, forme (PDF ou page web), source,
    officielle ou de fan, lien. Le même fichier trouvé à plusieurs endroits ne compte qu'une fois.
    - aucune version → elle dit où et avec quels noms elle a cherché, et vous demande un autre nom ou un lien ;
@@ -132,6 +151,11 @@ Exemple réel (octobre 2026) :
 Les fichiers téléchargés sont traités comme des données non fiables : dossier temporaire à part, jamais
 exécutés. La skill ne récupère que ce qui est publiquement accessible (ou accessible avec votre compte) et ne
 contourne aucun paiement ni aucune protection.
+
+Une page web donne des informations, jamais des ordres : un texte qui tenterait de diriger l'IA (injection de
+consignes) n'est pas suivi. Il ne vous est signalé que s'il est réellement présent dans le contenu brut de la
+page. L'outil qui résume les pages web pour Claude produisait en effet de fausses alertes : il confondait ses
+propres consignes avec la page (vérifié sur les fiches Game Market, qui n'en contiennent aucun).
 
 ---
 
@@ -213,7 +237,8 @@ recherche-regles-jeu/
 ├── README.md           ce fichier
 └── scripts/
     ├── page_pdf.py     pages web → PDF, avec contrôle d'intégralité
-    └── notion_html.py  page Notion → HTML complet (tous les blocs), à passer ensuite à page_pdf.py
+    ├── notion_html.py  page Notion → HTML complet (tous les blocs), à passer ensuite à page_pdf.py
+    └── fiche_gm.py     Game Market : recherche par mot et lecture d'une fiche (texte et liens bruts)
 ```
 
 ---
