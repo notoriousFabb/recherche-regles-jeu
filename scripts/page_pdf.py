@@ -39,12 +39,17 @@ img, table, figure { break-inside: avoid; }
 .page + .page { break-before: page; }
 @page { size: A4; margin: 15mm 14mm; }
 """
-# fonds imprimés (couleur, images de fond) ; pages sans marge blanche, à la largeur de la page web
+# fonds imprimés (couleur, images de fond) ; pages sans marge blanche, à la largeur de la page web ;
+# paragraphes, images et titres jamais coupés (une section entière insécable laisserait des pages à moitié
+# vides) ; fond du site jusqu'en bas des pages
 FIDELE_CSS = """
 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-img, figure, table { break-inside: avoid; }
+p, figure, img, table, tr, li, blockquote, pre { break-inside: avoid; }
+h1, h2, h3, h4 { break-after: avoid; break-inside: avoid; }
+%(fond)s
 @page { size: %(l)dpx %(h)dpx; margin: 0; }
 """
+PX = 0.75  # points PDF par pixel CSS
 URL_CSS = re.compile(r"""url\(\s*(['"]?)([^'")]+)\1\s*\)""")
 IMAGE_CSS = re.compile(r"\.(png|jpe?g|gif|webp|avif|svg)\b|googleusercontent|sitesv-images", re.I)
 
@@ -183,13 +188,60 @@ def fidele(nav, profil, url, travail, images, largeur):
         tete = lxml.html.Element("head")
         doc.insert(0, tete)
     st = lxml.html.Element("style")
-    st.text = deplier + FIDELE_CSS % {"l": largeur, "h": round(largeur * 297 / 210)}
+    st.text = deplier + "/*FIDELE*/"  # réglages d'impression, posés par imprimer_fidele()
     tete.append(st)
     corps = doc.find("body")
     n_txt = compter(corps.text_content()) if corps is not None else 0
     page = travail / f"page_{len(list(travail.glob('page_*.html'))) + 1}.html"
     page.write_text("<!doctype html>" + lxml.html.tostring(doc, encoding="unicode"), encoding="utf-8")
     return page, n_txt, n_img
+
+
+def analyser(pdf):
+    """Colonne du contenu (x0, x1 en points) et couleur de fond dominante. Les bandeaux pleine largeur et ce
+    qui est posé dessus (nom du site, barre de menu de l'en-tête) ne comptent pas."""
+    d = pymupdf.open(pdf)
+    larg = d[0].rect.width
+    xs, couleurs = [], {}
+    for p in d:
+        images = [pymupdf.Rect(i["bbox"]) for i in p.get_image_info()]
+        bandeaux = [r for r in images if r.width >= 0.9 * larg]
+        boites = [pymupdf.Rect(b[:4]) for b in p.get_text("blocks")] + images
+        xs += [(b.x0, b.x1) for b in boites
+               if b.width < 0.9 * larg and not any(r.contains(b) or r.intersects(b) and b.y1 <= r.y1 for r in bandeaux)]
+        pix = p.get_pixmap(dpi=12)
+        s, n = pix.samples, pix.n
+        for i in range(0, len(s), n):
+            c = s[i:i + 3]
+            couleurs[c] = couleurs.get(c, 0) + 1
+    x0, x1 = (min(a for a, _ in xs), max(b for _, b in xs)) if xs else (0, larg)
+    fond = max(couleurs, key=couleurs.get) if couleurs else None
+    return x0, x1, larg, (f"#{fond[0]:02x}{fond[1]:02x}{fond[2]:02x}" if fond else None)
+
+
+def imprimer_fidele(nav, profil, page, sortie, largeur):
+    """Deux passages : le premier mesure la colonne du contenu et la couleur de fond, le second imprime des
+    pages A4 à la largeur de cette colonne (texte plus grand une fois imprimé), fond du site jusqu'en bas."""
+    html = page.read_text(encoding="utf-8")
+
+    def imprimer(hauteur, fond):
+        regle = f"html, body {{ background-color: {fond} !important; }}" if fond else ""
+        page.write_text(html.replace("/*FIDELE*/", FIDELE_CSS % {"l": largeur, "h": hauteur, "fond": regle}),
+                        encoding="utf-8")
+        sortie.unlink(missing_ok=True)
+        lancer(nav, profil, [f"--print-to-pdf={sortie}", "--no-pdf-header-footer", page.as_uri()])
+        if not sortie.exists():
+            sys.exit(f"ERREUR : le navigateur n'a pas produit de PDF pour {page}")
+
+    imprimer(round(largeur * 297 / 210), None)
+    x0, x1, larg, fond = analyser(sortie)
+    marge = max(12.0, 0.05 * (x1 - x0))
+    x0, x1 = max(0.0, x0 - marge), min(larg, x1 + marge)
+    imprimer(round((x1 - x0) / PX * 297 / 210), fond)
+    d = pymupdf.open(sortie)
+    for p in d:
+        p.set_cropbox(pymupdf.Rect(x0, 0, x1, p.mediabox.height))
+    return d
 
 
 def nettoyer(el):
@@ -229,18 +281,15 @@ def main():
     images = Images(travail / "images")
     try:
         if a.fidele:
-            parties, n_txt, n_img = [], 0, 0
+            d, n_txt, n_img = pymupdf.open(), 0, 0
             for i, url in enumerate(a.urls):
                 page, t, im = fidele(nav, profil, url, travail, images, a.largeur)
                 n_txt, n_img = n_txt + t, n_img + im
-                part = travail / f"partie_{i + 1}.pdf"
-                lancer(nav, profil, [f"--print-to-pdf={part}", "--no-pdf-header-footer", page.as_uri()])
-                if not part.exists():
-                    sys.exit(f"ERREUR : le navigateur n'a pas produit de PDF pour {url}")
-                parties.append(part)
-            d = pymupdf.open()
-            for part in parties:
-                d.insert_pdf(pymupdf.open(part))
+                d.insert_pdf(imprimer_fidele(nav, profil, page, travail / f"partie_{i + 1}.pdf", a.largeur))
+            for p in d:  # numéro de page discret, en bas au centre
+                r, n, taille = p.rect, str(p.number + 1), 0.014 * p.rect.width
+                x = (r.width - pymupdf.get_text_length(n, fontsize=taille)) / 2
+                p.insert_text((x, r.y1 - 0.012 * r.width), n, fontsize=taille, color=(0.35, 0.35, 0.35))
             if a.titre:
                 d.set_metadata({**d.metadata, "title": a.titre})
             d.save(sortie)
@@ -290,7 +339,8 @@ def main():
         print(f"Images : source {n_img}, PDF {p_img}")
         if liens:
             print(f"ATTENTION : {liens} lien(s) cliquable(s) restent dans le PDF.")
-        if n_txt and p_txt < 0.95 * n_txt:
+        # --fidele : la source compte aussi menus et textes posés sur le bandeau, hors de la colonne gardée
+        if n_txt and p_txt < (0.9 if a.fidele else 0.95) * n_txt:
             print("ALERTE : le PDF contient nettement moins de texte que la source.")
         if p_img < n_img:
             print("ALERTE : des images de la source manquent peut-être dans le PDF.")

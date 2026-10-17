@@ -170,10 +170,12 @@ python -I -X utf8 scripts/page_pdf.py sortie.pdf URL --complet
 ```
 
 - `--fidele` (par défaut) : la page **avec la mise en page du site**, aussi proche que possible de l'écran :
-  en-tête, pied de page, couleur et images de fond, polices, images à leur place. Pages de la largeur du site
-  (`--largeur`, 1280 pixels par défaut), proportions A4. Les images sont téléchargées à part (Google Sites
-  interdit de les afficher ailleurs que sur sa page), les bannières de cookies sont retirées, et les barres
-  de menu épinglées restent en haut de la première page au lieu d'être répétées sur chaque page.
+  en-tête, pied de page, couleur et images de fond, polices, images à leur place. Le site est affiché en
+  version « ordinateur » (`--largeur`, 1280 pixels par défaut), puis les pages sont recadrées sur la colonne
+  du contenu (texte plus grand une fois imprimé), en proportions A4, avec le fond du site jusqu'en bas et un
+  numéro de page. Paragraphes, images et titres ne sont jamais coupés. Les images sont téléchargées à part
+  (Google Sites interdit de les afficher ailleurs que sur sa page), les bannières de cookies sont retirées,
+  et les barres de menu épinglées ne sont pas répétées sur chaque page.
 - `--xpath` : seul le bloc des règles est gardé, dans une mise en page simple (noir sur blanc), pour une page
   qui contient beaucoup d'autre chose (commentaires, publicités, plusieurs jeux) ; plusieurs pages sont
   réunies dans un seul PDF, chacune commençant sur une nouvelle page.

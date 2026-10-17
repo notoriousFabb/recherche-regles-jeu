@@ -139,10 +139,14 @@ Dossier de travail : `<scratchpad>/regles/<jeu>/`, vide au départ.
   2. **Par défaut, garder la mise en page du site** (en-tête, pied de page, couleur et images de fond,
      polices, images à leur place) :
      `python -I -X utf8 <skill>/scripts/page_pdf.py "<travail>/<nom>.pdf" "<url1>" ["<url2>" …] --fidele --titre "<Nom du jeu>"`
-     Pages de la largeur du site (`--largeur`, 1280 pixels par défaut), proportions A4, une page web après
-     l'autre. Le script télécharge les images à part (Google Sites interdit de les afficher ailleurs), retire
-     les bannières de cookies et laisse barres de menu et en-têtes épinglés en haut de la première page au
-     lieu de les répéter sur chaque page.
+     Le site est affiché à `--largeur` pixels (1280 par défaut, mise en page « ordinateur »), puis chaque page
+     est recadrée sur la colonne du contenu (marges vides du site retirées : texte plus grand une fois
+     imprimé), en proportions A4, avec la couleur de fond du site jusqu'en bas et un numéro de page discret.
+     Paragraphes, images et titres ne sont jamais coupés ; un bloc du site qui ne se coupe pas (section de
+     Google Sites) peut laisser le bas d'une page vide. Le script télécharge aussi les images à part (Google
+     Sites interdit de les afficher ailleurs), retire les bannières de cookies et ne répète pas les barres de
+     menu épinglées sur chaque page. Textes posés sur le bandeau pleine largeur (nom du site, menu) : hors
+     de la colonne, ils sont coupés par le recadrage.
      **Seulement si la page contient beaucoup d'autre chose que les règles** (blog avec commentaires, publicités,
      plusieurs jeux sur la même page), ou si le rendu fidèle est raté : ne garder que le bloc des règles, dans
      une mise en page simple, avec `--xpath "<xpath>"` à la place de `--fidele` (`//article`, `//main`,
@@ -158,8 +162,8 @@ Dossier de travail : `<scratchpad>/regles/<jeu>/`, vide au départ.
      `python -I -X utf8 <skill>/scripts/notion_html.py "<lien Notion>" "<travail>/regles.html"`, puis
      `page_pdf.py "<travail>/<nom>.pdf" "file:///<travail>/regles.html" --xpath "//body" --titre "<Nom du jeu>"`.
      Il signale les sous-pages non incluses (à traiter comme des pages de plus) et les blocs d'un type inconnu.
-  3. Vérifier le bilan du script : caractères de la source et du PDF (alerte sous 95 % ; en mode `--fidele`,
-     la source compte aussi les menus cachés, un écart de quelques % est normal), images de la source et du
+  3. Vérifier le bilan du script : caractères de la source et du PDF (alerte sous 95 % ; sous 90 % en mode
+     `--fidele`, où la source compte aussi menus cachés et textes du bandeau), images de la source et du
      PDF, images non téléchargées, liens restants. Regarder ensuite une planche des pages du PDF à ~60 dpi
      (images, tableaux, rien de coupé, pas de barre ni de bannière répétée sur chaque page), et comparer le
      début et la fin du texte du PDF avec la page web. Corriger (XPath, page oubliée, `--largeur`) et
