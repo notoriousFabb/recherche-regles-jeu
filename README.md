@@ -16,6 +16,7 @@ société, de cartes ou autre.
 ## Sommaire
 - [Ce qu'elle fait](#ce-quelle-fait)
 - [Installation](#installation)
+- [Mise à jour](#mise-à-jour)
 - [Utilisation](#utilisation)
 - [Déroulement d'une recherche](#déroulement-dune-recherche)
 - [Règles pages web → PDF](#règles-pages-web--pdf)
@@ -64,6 +65,28 @@ société, de cartes ou autre.
    dans un `CLAUDE.md` à la racine de la ludothèque (par exemple « les PDF à traduire sont déposés dans
    `A traduire/` »). S'il n'est noté nulle part, Claude le demande la première fois et propose de le noter.
    Les chemins propres à votre machine vont là, pas dans la skill.
+
+---
+
+## Mise à jour
+Si la skill a été installée avec `git clone` (étape 1 ci-dessus), récupérer la dernière version :
+```
+git -C ~/.claude/skills/recherche-regles-jeu pull --ff-only
+```
+(Windows, dans PowerShell : `git -C "$env:USERPROFILE\.claude\skills\recherche-regles-jeu" pull --ff-only`.)
+
+On peut aussi simplement demander à Claude Code « mets à jour la skill recherche-regles-jeu ».
+
+- Si la commande refuse parce que des fichiers de la skill ont été modifiés sur le PC, `git status` les liste :
+  les garder de côté (`git stash`), refaire le `pull`, puis les remettre (`git stash pop`) ou les abandonner.
+- Si la skill a été copiée sans git, remplacer le dossier par la nouvelle version (ou le supprimer et refaire
+  le `git clone` de l'installation).
+- Relancer `pip install pymupdf lxml` si une nouvelle version demande d'autres bibliothèques (indiqué dans
+  [Installation](#installation)).
+- Dans une session Claude Code déjà ouverte, taper `/reload-skills` pour prendre en compte la nouvelle version
+  (ou ouvrir une nouvelle session).
+- Penser à mettre à jour aussi la skill [traduction-regles-jeu](https://github.com/vinchy1/traduction-regles-jeu)
+  de la même façon, les deux partageant la note du jeu.
 
 ---
 
