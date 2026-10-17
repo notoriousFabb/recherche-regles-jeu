@@ -101,7 +101,14 @@ Exemple réel (octobre 2026) :
 2. **Compléter** : Game Market avec les autres titres lus sur les sources, BoardGameGeek (onglet « Files », par
    le navigateur), site de l'éditeur, autres recherches web (`rules pdf`, `説明書`, `ルール`, `Spielregel`…).
    Les « vous vouliez peut-être dire… » des moteurs de recherche sont ignorés : seule compte une page qui nomme
-   le jeu.
+   le jeu. Les aperçus IA (Google…) que vous lui donnez sont traités comme des pistes, vérifiées sur les
+   sources.
+   - **Jeu japonais tout récent, introuvable par son nom en lettres latines** : la fiche Game Market n'a
+     souvent que le titre japonais. La skill cherche alors le nom entre guillemets sur YouTube, où les vidéos
+     de présentation du Game Market ont un chapitre par jeu, ouvre la vidéo à ce chapitre, **lit le titre
+     japonais sur la boîte**, puis cherche ce titre (ou un mot distinctif) sur Game Market. Exemple :
+     « Cosmo Chauffeur » → boîte « コスモ・ショーファー » dans le top 20 de ThinkerThemer → fiche Game Market
+     trouvée avec « ショーファー » → règle officielle en PDF.
 3. **Faire le point** : pour chaque version, titre / édition, langue, forme (PDF ou page web), source,
    officielle ou de fan, lien. Le même fichier trouvé à plusieurs endroits ne compte qu'une fois.
    - aucune version → elle dit où et avec quels noms elle a cherché, et vous demande un autre nom ou un lien ;
@@ -191,7 +198,8 @@ recherche-regles-jeu/
 - **BoardGameGeek** refuse la lecture simple de ses pages : sans l'extension Claude in Chrome, ses fichiers ne
   sont pas consultables, et ceux qui demandent d'être connecté doivent être téléchargés à la main.
 - **Jeux tout juste sortis** (dernier Game Market) : souvent absents de BoardGameGeek et des moteurs de
-  recherche ; la fiche Game Market est alors la meilleure source.
+  recherche ; la fiche Game Market est alors la meilleure source. Si elle n'a que le titre japonais, la
+  recherche passe par les vidéos de présentation (extension Claude in Chrome nécessaire).
 - **Google Drive** : un fichier dont le téléchargement est bloqué (lecture seule) n'est récupéré qu'en images,
   avec votre accord, par la méthode de la skill de traduction (`references/en-ligne.md`) : le résultat est un
   livret scanné.
