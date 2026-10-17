@@ -115,7 +115,8 @@ def main():
                     n_txt += compter(el.text_content())
                     n_img += len(el.xpath(".//img[@src]"))
                     html.append(lxml.html.tostring(el, encoding="unicode"))
-                blocs.append(f'<div class="page"><p class="source">Source : {url}</p>{"".join(html)}</div>')
+                source = "" if url.startswith("file:") else f'<p class="source">Source : {url}</p>'  # fichier local : sa source est dans le fichier
+                blocs.append(f'<div class="page">{source}{"".join(html)}</div>')
             titre = f"<title>{a.titre}</title>" if a.titre else ""
             page = travail / "regles.html"
             page.write_text(f'<!doctype html><html><head><meta charset="utf-8">{titre}<style>{CSS}</style>'

@@ -118,6 +118,13 @@ Dossier de travail : `<scratchpad>/regles/<jeu>/`, vide au départ.
      ne trouve rien sur une des pages arrête le script avec « ERREUR : ».
      (`--complet` à la place de `--xpath` : la page entière telle qu'imprimée par le navigateur, pour une page
      qui ne contient que les règles.)
+     **Page Notion** (`*.notion.site`, `notion.so`, `app.notion.com`) : Notion n'affiche que la partie visible
+     (le reste se charge en défilant) et bloque le navigateur en arrière-plan ; ni la lecture de la page ni
+     `--complet` ne donnent tout. Passer par `scripts/notion_html.py`, qui lit tous les blocs auprès de Notion
+     (sans compte, blocs repliés dépliés) et écrit la page entière en HTML, puis convertir ce fichier :
+     `python -I -X utf8 <skill>/scripts/notion_html.py "<lien Notion>" "<travail>/regles.html"`, puis
+     `page_pdf.py "<travail>/<nom>.pdf" "file:///<travail>/regles.html" --xpath "//body" --titre "<Nom du jeu>"`.
+     Il signale les sous-pages non incluses (à traiter comme des pages de plus) et les blocs d'un type inconnu.
   3. Vérifier le bilan du script : caractères de la source et du PDF (alerte sous 95 %), images de la source
      et du PDF. Regarder ensuite une planche des pages du PDF à ~60 dpi (images, tableaux, rien de coupé), et
      comparer le début et la fin du texte du PDF avec la page web. Corriger l'XPath ou ajouter une page
