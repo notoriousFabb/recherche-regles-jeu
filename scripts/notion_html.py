@@ -153,12 +153,11 @@ def main():
         sys.exit("ERREUR : page introuvable ou non publique.")
     titre = texte(racine.get("properties", {}).get("title"))
     corps = rendre(racine.get("content", []), blocs)
-    css = (".source{font-size:8pt;color:#555;word-break:break-all}.callout{background:#f3f3f1;border-radius:4px;padding:6px 10px;margin:.5em 0}"
+    css = (".callout{background:#f3f3f1;border-radius:4px;padding:6px 10px;margin:.5em 0}"
            ".column_list{display:flex;gap:16px}.column{flex:1}"
            "blockquote{border-left:3px solid #999;margin:.5em 0;padding-left:10px}")
     Path(sys.argv[2]).write_text(f'<!doctype html><html><head><meta charset="utf-8"><title>{titre}</title>'
-                                 f'<style>{css}</style></head><body><p class="source">Source : '
-                                 f'{html.escape(sys.argv[1])}</p><h1>{titre}</h1>\n{corps}</body></html>',
+                                 f'<style>{css}</style></head><body><h1>{titre}</h1>\n{corps}</body></html>',
                                  encoding="utf-8")
     sous_pages = [b for b in blocs.values() if b.get("type") == "page" and b.get("id") != page]
     print(f"HTML : {sys.argv[2]} — {len(blocs)} blocs, {sum(1 for b in blocs.values() if b.get('type') == 'image')} images")
