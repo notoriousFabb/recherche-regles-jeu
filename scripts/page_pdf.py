@@ -9,6 +9,9 @@
            sont téléchargées à part : certains sites (Google Sites) interdisent de les afficher ailleurs.
 --xpath : bloc(s) de chaque page qui contiennent les règles, dans une mise en page simple (noir sur blanc).
 --complet : la page entière, telle que le navigateur l'imprime.
+--garder DOSSIER (avec --fidele ou --xpath) : garde dans DOSSIER la page locale (page_1.html, page_2.html…) et
+           ses images (images/) ; la skill traduction-regles-jeu traduit ce HTML puis le remet en PDF avec la
+           même commande (adresse file:///…/page_1_fr.html à la place de l'URL).
 Dans tous les cas : aucun lien cliquable dans le PDF (sommaire compris) et pas de ligne « Source » ajoutée
 (le lien de la page est noté dans la note du jeu).
 Le navigateur (Chrome, sinon Edge) tourne en arrière-plan avec un profil temporaire : il ne touche pas à
@@ -292,7 +295,7 @@ def epingles(doc):
     return regles
 
 
-def fidele(nav, profil, url, travail, images, largeur):
+def fidele(nav, profil, url, travail, images, largeur, copie=None):
     """Page entière avec sa mise en page, enregistrée en HTML local ; renvoie (fichier, caractères, images)."""
     dom = lancer(nav, profil, ["--dump-dom", url])
     if not dom.strip():
@@ -337,6 +340,8 @@ def fidele(nav, profil, url, travail, images, largeur):
     if tete is None:
         tete = lxml.html.Element("head")
         doc.insert(0, tete)
+    if copie:  # --garder : page locale, sans les réglages d'impression (ils sont reposés à chaque impression)
+        copie.write_text("<!doctype html>" + lxml.html.tostring(doc, encoding="unicode"), encoding="utf-8")
     st = lxml.html.Element("style")
     st.text = deplier + "/*FIDELE*/"  # réglages d'impression, posés par imprimer_fidele()
     tete.append(st)
@@ -422,18 +427,23 @@ def main():
     g.add_argument("--complet", action="store_true")
     ap.add_argument("--largeur", type=int, default=1280)
     ap.add_argument("--titre", default="")
+    ap.add_argument("--garder")
     a = ap.parse_args()
 
     nav = navigateur()
     sortie = Path(a.sortie).resolve()
     travail = dossier_travail()
     profil = travail / "profil"
-    images = Images(travail / "images")
+    garder = Path(a.garder).resolve() if a.garder else None
+    if garder:
+        garder.mkdir(parents=True, exist_ok=True)
+    images = Images((garder or travail) / "images")
     try:
         if a.fidele:
             d, n_txt, n_img = pymupdf.open(), 0, 0
             for i, url in enumerate(a.urls):
-                page, t, im = fidele(nav, profil, url, travail, images, a.largeur)
+                page, t, im = fidele(nav, profil, url, travail, images, a.largeur,
+                                     garder / f"page_{i + 1}.html" if garder else None)
                 n_txt, n_img = n_txt + t, n_img + im
                 d.insert_pdf(imprimer_fidele(nav, profil, page, travail / f"partie_{i + 1}.pdf", a.largeur))
             for p in d:  # numéro de page discret, en bas au centre
@@ -476,6 +486,8 @@ def main():
             page = travail / "regles.html"
             page.write_text(f'<!doctype html><html><head><meta charset="utf-8">{titre}<style>{CSS}</style>'
                             f'</head><body>{"".join(blocs)}</body></html>', encoding="utf-8")
+            if garder:
+                shutil.copy(page, garder / "page_1.html")
             lancer(nav, profil, [f"--print-to-pdf={sortie}", "--no-pdf-header-footer", page.as_uri()])
 
         if not sortie.exists():
