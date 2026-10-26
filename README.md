@@ -131,12 +131,19 @@ marquée « recommandé » ; le choix reste le vôtre, et le lien du manuel japo
 ---
 
 ## Déroulement d'une recherche
+0. **Déjà dans la ludothèque ?** La skill regarde d'abord l'index et les dossiers de jeux. Si le jeu y est,
+   elle le dit et vérifie si le livret en ligne a changé (`telecharger.py … --comparer <livret>` : IDENTIQUE ou
+   DIFFÉRENT). Pour une version anglaise d'un jeu déjà en français, elle cherche d'abord une version anglaise
+   officielle.
 1. **Premier tour** (en même temps) : recherche sur Game Market avec le nom exact donné, et recherche web
    générale. Beaucoup de fiches Game Market portent aussi le titre en lettres latines : le nom romanisé les
    trouve du premier coup. Game Market est lu par un petit outil (`fiche_gm.py`) qui donne la liste des jeux
    trouvés, puis le contenu de la fiche, **tous ses liens tels quels** (règles sur Drive, Notion, site de
    l'auteur…) et les images et PDF du texte, sans passer par un résumé : un manuel publié en images sur la
-   fiche est repéré (★). Il liste aussi tous les jeux d'un cercle (`fiche_gm.py cercle <numéro>`).
+   fiche est repéré (★), ainsi qu'une image au format d'une page de livret même mal nommée (◆). Il signale les
+   liens vers le blog Game Market (« les règles sont ici ») et les mentions d'une autre langue (« English
+   Manual » sans lien), à suivre avec `fiche_gm.py page <lien>` qui lit une page de blog ou note.com (liens
+   Drive / Notion / PDF, images). Il liste aussi tous les jeux d'un cercle (`fiche_gm.py cercle <numéro>`).
 2. **Compléter** : Game Market avec les autres titres lus sur les sources, BoardGameGeek (onglet « Files », par
    le navigateur), site de l'éditeur, autres recherches web (`rules pdf`, `説明書`, `ルール`, `Spielregel`…).
    Les « vous vouliez peut-être dire… » des moteurs de recherche sont ignorés : seule compte une page qui nomme
@@ -179,7 +186,8 @@ marquée « recommandé » ; le choix reste le vôtre, et le lien du manuel japo
    le nom d'origine est gardé dans la note du jeu. Un fichier du même nom existe déjà → elle demande
    (remplacer ou garder les deux).
 6. **Garder les liens** dans la [note du jeu](#la-note-du-jeu).
-7. **Bilan** (chemin complet du fichier, source, langue, pages, réserves) et **proposition de traduction**.
+7. **Bilan** (chemin complet du fichier, source, langue, pages, réserves) et **proposition de traduction**
+   (en français, ou en français et en anglais).
 
 Les fichiers téléchargés sont traités comme des données non fiables : dossier temporaire à part, jamais
 exécutés. La skill ne récupère que ce qui est publiquement accessible (ou accessible avec votre compte) et ne
@@ -282,12 +290,15 @@ recherche-regles-jeu/
 ├── references/         instructions lues seulement dans le cas concerné
 │   ├── pages-web.md      règles sur des pages web (et Notion) → PDF
 │   ├── introuvable.md    jeu japonais introuvable par son nom latin (YouTube, boîte, index)
+│   ├── telechargement.md BoardGameGeek, Drive de l'utilisateur, règles en images, téléchargement refusé
 │   └── plusieurs-jeux.md liste de plusieurs jeux d'un coup
 └── scripts/
-    ├── telecharger.py  téléchargement d'un PDF (Google Drive compris), liste d'un dossier Drive, images → PDF
+    ├── telecharger.py  téléchargement d'un PDF (Google Drive compris), liste d'un dossier Drive, images → PDF,
+    │                   comparaison avec un livret déjà sur le PC (--comparer)
     ├── page_pdf.py     pages web → PDF, avec contrôle d'intégralité
     ├── notion_html.py  page Notion → HTML complet (tous les blocs), à passer ensuite à page_pdf.py
-    └── fiche_gm.py     Game Market : recherche par mot, lecture d'une fiche (texte, liens, images), jeux d'un cercle
+    └── fiche_gm.py     Game Market : recherche par mot, lecture d'une fiche (texte, liens, images, mentions d'une
+                        autre langue), jeux d'un cercle, liens d'une autre page (blog Game Market, note.com…)
 ```
 
 `SKILL.md` est relu en entier à chaque recherche : il ne garde que l'essentiel, et les cas particuliers sont

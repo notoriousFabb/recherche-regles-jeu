@@ -26,7 +26,12 @@ Avant de conclure « aucun résultat » :
    cercle, type de jeu) donne la piste, pas le titre japonais.
 4. **Même auteur ou même cercle** : une piste « du même auteur / cercle que X » (transcription, BGG, X) →
    `fiche_gm.py cercle <numéro du cercle de X>` liste tous ses jeux, titres japonais compris ; le nouveau jeu
-   est le plus souvent en tête.
+   est le plus souvent en tête. Nom romanisé donné par l'utilisateur avec le cercle (« Kajitsu Tobu de
+   Mashikamaru ») : lister le cercle et retrouver le titre dont la lecture correspond (果実飛ぶ).
+   **Habitudes du cercle** : regarder où ses jeux précédents publient leurs règles (blog du cercle, billets
+   « 【PRODUCT】 » avec lien Drive, page note.com, message épinglé du X avec les pages en images) —
+   `fiche_gm.py page "<lien>"` sur ces pages. Rien encore pour le nouveau jeu : le dire (les règles arrivent
+   souvent quelques jours après le Game Market) et proposer de relancer plus tard.
 5. **Lire le titre sur la boîte** (seulement si rien de ce qui précède ne le donne) : ouvrir la vidéo au chapitre,
    puis (JavaScript) `v=document.querySelector('video'); v.muted=true; v.currentTime=<secondes>; v.pause()`,
    **une** capture, zoom sur la boîte. Titre, auteur et illustrateur (souvent imprimés en bas) comptent comme

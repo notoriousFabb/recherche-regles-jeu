@@ -2,6 +2,7 @@
 
     python -I -X utf8 telecharger.py "<lien>" "<dossier de travail>"
     python -I -X utf8 telecharger.py "<image 1>" "<image 2>" […] "<dossier de travail>"
+    python -I -X utf8 telecharger.py "<lien>" "<dossier de travail>" --comparer "<livret déjà sur le PC>"
 
 - Lien Google Drive (…/file/d/<id>/view, open?id=…) : téléchargement direct, page « fichier trop gros pour
   être analysé » passée automatiquement.
@@ -12,9 +13,13 @@
 - Résultat : <dossier>/telechargement.pdf (ou .html / .bin si ce n'est ni un PDF ni une image).
 - Bilan : nombre de pages et nom de fichier d'origine (en-tête Content-Disposition), ou « page HTML reçue »
   quand le site demande d'être connecté (à télécharger alors avec Chrome ou par l'utilisateur).
+- --comparer : dit si le fichier reçu est IDENTIQUE (octet pour octet) au livret déjà sur le PC, ou DIFFÉRENT
+  (version mise à jour : nombre de pages et taille des deux).
+- Lien de fichier BoardGameGeek (…/file/download_redirect/…, lu dans Chrome sur la page du fichier) : passe
+  souvent sans connexion.
 Le fichier reçu n'est jamais ouvert autrement que par pymupdf, ni exécuté.
 """
-import email.message, re, sys, urllib.error, urllib.parse, urllib.request
+import email.message, hashlib, re, sys, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 
 import lxml.html
@@ -30,6 +35,8 @@ def lien_direct(url):
 
 
 def recevoir(url):
+    # adresse avec du japonais (« …/説明書.png ») : à encoder, urllib n'accepte que l'ASCII
+    url = urllib.parse.quote(url, safe=":/?&=%#+,;@~!$'()*[]")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=120) as r:
         return r.read(), r.headers, r.geturl()
@@ -120,27 +127,50 @@ def assembler(urls, dossier):
     print(f"PDF : {sortie} — {pdf.page_count} pages (images assemblées)")
 
 
-def main(urls, dossier):
+def comparer(recu, local):
+    """Le livret reçu est-il celui déjà sur le PC ?"""
+    local = Path(local)
+    if not local.is_file():
+        return print(f"COMPARAISON impossible : {local} introuvable.")
+    a, b = recu.read_bytes(), local.read_bytes()
+    if hashlib.sha256(a).digest() == hashlib.sha256(b).digest():
+        return print(f"IDENTIQUE à {local} : le livret en ligne n'a pas changé.")
+    with pymupdf.open(recu) as d1, pymupdf.open(local) as d2:
+        print(f"DIFFÉRENT de {local} : en ligne {d1.page_count} pages / {len(a) // 1024} Ko, "
+              f"sur le PC {d2.page_count} pages / {len(b) // 1024} Ko — version mise à jour ?")
+
+
+def main(urls, dossier, local=None):
     dossier = Path(dossier)
     dossier.mkdir(parents=True, exist_ok=True)
+    sortie = dossier / "telechargement.pdf"
     if len(urls) == 1:
         m = re.search(r"drive\.google\.com/drive/(?:u/\d+/)?folders/([\w-]+)", urls[0])
         if m:
             return lister_dossier(urls[0], m.group(1))
         donnees, entetes, final, nom = obtenir(urls[0])
         if donnees.startswith(b"%PDF"):
-            sortie = dossier / "telechargement.pdf"
             sortie.write_bytes(donnees)
             with pymupdf.open(sortie) as d:
                 print(f"PDF : {sortie} — {d.page_count} pages — {len(donnees) // 1024} Ko"
                       f" — nom d'origine : {nom or '(non fourni)'}")
+            if local:
+                comparer(sortie, local)
             return
         if not type_image(donnees):
             pas_un_pdf(donnees, entetes, final, nom, dossier)
     assembler(urls, dossier)
+    if local:
+        comparer(sortie, local)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
+    args = sys.argv[1:]
+    local = None
+    if "--comparer" in args:
+        i = args.index("--comparer")
+        local = args[i + 1] if i + 1 < len(args) else None
+        del args[i:i + 2]
+    if len(args) < 2:
         sys.exit(__doc__)
-    main(sys.argv[1:-1], sys.argv[-1])
+    main(args[:-1], args[-1], local)

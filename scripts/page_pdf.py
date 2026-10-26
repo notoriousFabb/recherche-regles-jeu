@@ -14,7 +14,7 @@ Dans tous les cas : aucun lien cliquable dans le PDF (sommaire compris) et pas d
 Le navigateur (Chrome, sinon Edge) tourne en arrière-plan avec un profil temporaire : il ne touche pas à
 celui de l'utilisateur. À la fin, bilan caractères / images de la source et du PDF.
 """
-import argparse, mimetypes, os, re, shutil, subprocess, sys, tempfile, urllib.request
+import argparse, mimetypes, os, re, shutil, subprocess, sys, tempfile, urllib.parse, urllib.request
 from pathlib import Path
 
 import lxml.html
@@ -93,7 +93,9 @@ class Images:
             return url
         if url not in self.vues:
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                # adresse avec du japonais (« …/タイトル.jpg ») : à encoder, urllib n'accepte que l'ASCII
+                req = urllib.request.Request(urllib.parse.quote(url, safe=":/?&=%#+,;@~!$'()*[]"),
+                                             headers={"User-Agent": "Mozilla/5.0"})
                 with urllib.request.urlopen(req, timeout=60) as r:
                     data, typ = r.read(), r.headers.get_content_type()
                 if not typ.startswith("image/"):

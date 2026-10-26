@@ -16,6 +16,9 @@
      gardé, mise en page simple (`//article`, `//main`, `//*[@id="rules"]`,
      `//div[contains(@class,"entry-content")]` ; sites différents : `//main | //div[@id="rules"]`). Le dire
      à l'utilisateur.
+   - **Billet du blog Game Market** (`gamemarket.jp/blog/NNN`) : `--fidele` garde menus, présentation du cercle
+     et pied de page en petit (mise en page « téléphone ») ; prendre `--xpath '//section[@class="archive"]'`
+     (titre, images et texte de l'article seulement).
    - Dans tous les modes : aucun lien cliquable ni ligne « Source » ; le lien va dans la note du jeu.
    - **Page Notion** (`*.notion.site`, `notion.so`, `app.notion.com`) : ni la lecture de la page ni
      `--fidele` ne donnent tout (chargement au défilement, navigateur en arrière-plan bloqué). Faire :
