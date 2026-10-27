@@ -3,7 +3,7 @@
 Trouve sur internet le **livret de règles d'un jeu** dont on donne simplement le nom, et l'enregistre sur le PC
 en **PDF intégral** : le PDF de l'éditeur tel quel, ou les règles affichées sur des pages web mises en PDF sans
 rien couper. Elle propose ensuite de le traduire en français avec la skill
-[traduction-regles-jeu](https://github.com/vinchy1/traduction-regles-jeu).
+[traduction-regles-jeu](https://github.com/notoriousFabb/traduction-regles-jeu).
 
 Il suffit de demander à Claude Code « trouve-moi les règles de Hyakuju Parade ». La skill cherche, vous montre
 ce qu'elle a trouvé, télécharge la version choisie, la range dans le dossier de dépôt et garde les liens.
@@ -48,7 +48,7 @@ société, de cartes ou autre.
 1. **Copier la skill** : le dossier `recherche-regles-jeu` dans `~/.claude/skills/`
    (Windows : `C:\Users\<vous>\.claude\skills\`), par exemple :
    ```
-   git clone https://github.com/vinchy1/recherche-regles-jeu.git ~/.claude/skills/recherche-regles-jeu
+   git clone https://github.com/notoriousFabb/recherche-regles-jeu.git ~/.claude/skills/recherche-regles-jeu
    ```
 2. **Python 3 et deux bibliothèques** (vérification des PDF, mise en PDF des pages web) :
    ```
@@ -57,7 +57,7 @@ société, de cartes ou autre.
 3. **Google Chrome ou Microsoft Edge** installé : il sert, en arrière-plan et avec un profil temporaire, à mettre
    les pages web en PDF. Votre navigateur habituel, vos onglets et vos connexions ne sont pas touchés.
 4. **Facultatif mais conseillé** :
-   - la skill [traduction-regles-jeu](https://github.com/vinchy1/traduction-regles-jeu), pour enchaîner sur la
+   - la skill [traduction-regles-jeu](https://github.com/notoriousFabb/traduction-regles-jeu), pour enchaîner sur la
      traduction ;
    - l'extension **Claude in Chrome** : elle permet de lire les pages de BoardGameGeek (qui refusent la lecture
      simple) et de télécharger un fichier qui demande d'être connecté, avec votre propre session.
@@ -85,7 +85,7 @@ On peut aussi simplement demander à Claude Code « mets à jour la skill recher
   [Installation](#installation)).
 - Dans une session Claude Code déjà ouverte, taper `/reload-skills` pour prendre en compte la nouvelle version
   (ou ouvrir une nouvelle session).
-- Penser à mettre à jour aussi la skill [traduction-regles-jeu](https://github.com/vinchy1/traduction-regles-jeu)
+- Penser à mettre à jour aussi la skill [traduction-regles-jeu](https://github.com/notoriousFabb/traduction-regles-jeu)
   de la même façon, les deux partageant la note du jeu.
 
 ---
@@ -327,5 +327,7 @@ sont lues en texte plutôt qu'en captures d'écran, pour la même raison.
 ## Remarques
 - **Usage personnel** : les livrets restent la propriété de leurs éditeurs ; ne les rediffusez qu'avec leur
   accord.
-- Compagnon de [traduction-regles-jeu](https://github.com/vinchy1/traduction-regles-jeu), par
-  [vinchy1](https://github.com/vinchy1).
+- Compagnon de [traduction-regles-jeu](https://github.com/notoriousFabb/traduction-regles-jeu). Skill créée par
+  [vinchy1](https://github.com/vinchy1) (reprise ensuite dans son plugin [regles-jeu](https://github.com/vinchy1/regles-jeu)) ;
+  maintenue ici par [notoriousFabb](https://github.com/notoriousFabb), qui y a ajouté la mise en PDF réparée sous
+  Windows et l'option `--garder` de `page_pdf.py`.
