@@ -2,10 +2,12 @@
 
     python -I -X utf8 fiche_gm.py chercher "<mot ou titre>"    liste des jeux trouvés (titre, lien, cercle)
     python -I -X utf8 fiche_gm.py fiche <numéro ou lien> [--tout]  informations (1 200 premiers caractères,
-                                                                tout avec --tout), liens, images et PDF de la fiche
+                                                                tout avec --tout), liens, images et PDF de la fiche,
+                                                                site du cercle lu sur sa boutique BOOTH
     python -I -X utf8 fiche_gm.py cercle <numéro ou lien>       jeux d'un cercle (/booth/NNN), titres compris
     python -I -X utf8 fiche_gm.py page <lien>                   liens utiles d'une autre page (billet de blog
-                                                                Game Market, page note.com, blog du cercle…)
+                                                                Game Market, page note.com, blog du cercle,
+                                                                site de l'éditeur ; site Wix : liste de ses pages)
 
 Plus fiable que le résumé d'une page par l'outil de lecture web : rien n'est réinterprété, et tous les liens
 (règles, Drive, Notion, site, X, billets du blog Game Market) sont donnés tels quels.
@@ -117,6 +119,9 @@ def fiche(ref):
         vus.add(h)
         blog = "  ← billet de blog : le lire avec « fiche_gm.py page »" if re.search(r"gamemarket\.jp/blog/\d+", h) else ""
         print(f"- {net(a) or '(sans texte)'} : {h}{blog}")
+    boutiques = [h for h in vus if re.search(r"\.booth\.pm/", h)]
+    if boutiques:
+        sites_boutique(boutiques[0])
     mentions(corps)
     # Livrets parfois publiés en images ou en PDF dans le texte de la fiche (pas toujours en lien)
     zone = d.xpath('//*[contains(text(),"ゲーム詳細")]/ancestor::*[.//img][1]') or [d]
@@ -127,6 +132,53 @@ def fiche(ref):
             vus.add(u)
             fichiers.append(u)
     lister_fichiers(fichiers)
+
+
+AUTRES = re.compile(r"booth\.pm|booth\.pixiv|pixiv\.net|pximg|twitter\.com/(share|intent)|x\.com/(share|intent)|"
+                    r"facebook\.com/sharer|line\.me|google\.com/(recaptcha|analytics)|googletagmanager|apple\.com|"
+                    r"play\.google|pixivsketch|fanbox\.cc|w3\.org|karakuri\.ai|(x|twitter)\.com/booth_pm", re.I)
+
+
+def sites_boutique(url):
+    """Site du cercle affiché en tête de sa boutique BOOTH (« ホームページ ») : absent de la fiche Game Market et des
+    moteurs de recherche, c'est souvent là que sont les règles (Chatlat : site Wix du cercle). La page d'un article
+    le montre mieux que l'accueil de la boutique (construit en JavaScript)."""
+    try:
+        d = page(url)
+    except Exception as e:
+        print(f"\n(boutique BOOTH illisible : {e})")
+        return
+    d.make_links_absolute(url)
+    sites = []
+    for a in d.xpath("//a[@href]"):
+        h = a.get("href")
+        if h.startswith("http") and not AUTRES.search(h) and h not in sites:
+            sites.append(h)
+    if sites:
+        print("\nSites du cercle (en tête de sa boutique BOOTH ; y chercher la page du jeu avec « fiche_gm.py page ») :")
+        for h in sites[:8]:
+            print(f"- {h}")
+
+
+def pages_wix(brut, url):
+    """Site Wix : toutes ses pages sont déclarées dans le code (« routes »), même celles absentes du menu ; la page
+    d'un jeu est souvent rangée sous /games/<nom> alors qu'une page /<nom> n'est qu'une annonce."""
+    routes = re.findall(r'"\.\\?/([^"]{1,80})":\{"type":"Static","pageId":"([0-9a-z]+)"', brut)
+    if not routes:
+        return
+    titres = dict(re.findall(r'"pageId":"([0-9a-z]+)","title":"([^"]{1,80})"', brut))
+    m = re.match(r"(https?://[^/]+(?:/[^/]+)?)", url)  # wixsite.com/<site> ou domaine propre
+    base = m.group(1) if "wixsite.com" in url else re.match(r"https?://[^/]+", url).group(0)
+    systeme = re.compile(r"account|members?|forum|notifications|followers|profile|settings|fullscreen|site-rules|"
+                         r"複製|blank", re.I)
+    vues = {}
+    for chemin, pid in routes:
+        chemin = chemin.replace("\\/", "/")
+        if not systeme.search(chemin):
+            vues.setdefault(chemin, titres.get(pid, "?"))
+    print(f"\nPages du site (Wix, {len(vues)}) — la page du jeu est souvent sous /games/ :")
+    for chemin, titre in vues.items():
+        print(f"- {titre} : {base}/{chemin}")
 
 
 def lister_fichiers(fichiers):
@@ -165,6 +217,7 @@ def autre_page(url):
     for h in liens:
         print(f"- {h}")
     mentions(texte)
+    pages_wix(brut, url)
     imgs = []
     for u in d.xpath("//img/@src") + re.findall(r"https?://img\.gamemarket\.jp/[^\s\"'<>\\)]+", brut):
         if "img.gamemarket.jp" in u and "ogp." not in u and u not in imgs:

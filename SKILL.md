@@ -38,7 +38,8 @@ anglaise demandée pour un jeu déjà en français : chercher d'abord une versio
 - **Game Market** : `python -I -X utf8 <skill>/scripts/fiche_gm.py chercher "<nom>"`, puis `fiche <numéro>` :
   texte (coupé à 1 200 caractères, `--tout`), **tous les liens tels quels**, billets de blog (« ルールはコチラ »),
   mentions d'une autre langue (« English Manual »), images (★ nom de livret, ◆ format d'une page). Blog, note.com,
-  blog du cercle : `fiche_gm.py page "<lien>"`. `fiche_gm.py cercle <numéro>` : jeux d'un cercle.
+  blog du cercle : `fiche_gm.py page "<lien>"`. `fiche_gm.py cercle <numéro>` : jeux d'un cercle. Lien vers une
+  boutique BOOTH : `fiche` y lit aussi le **site du cercle** (souvent absent de la fiche et des moteurs).
 - **Recherche web** : `<nom> game rules` (ou `rulebook`).
 - **Ne jamais deviner l'écriture japonaise d'un titre romanisé** : seulement un titre lu sur une source.
 - Plusieurs jeux du même nom → demander lequel.
@@ -47,7 +48,12 @@ anglaise demandée pour un jeu déjà en français : chercher d'abord une versio
 1. Game Market avec les autres noms **lus** sur une source ; règles souvent sur Google Drive, le X ou la
    boutique `*.booth.pm` du cercle.
 2. **BoardGameGeek** par Chrome, onglet « Files » — `references/telechargement.md`.
-3. Site de l'éditeur (téléchargements, support, « rules », règles en HTML).
+3. **Site de l'éditeur ou du cercle**, toujours, même sans lien sur la fiche : le trouver par la fiche, les
+   « Sites du cercle » de `fiche` (boutique BOOTH), la bio du X ou la recherche web, puis y ouvrir **la page du
+   jeu** (téléchargements, support, « rules », règles en HTML) avec `fiche_gm.py page "<lien>"` : liens PDF / Drive
+   même sur un site construit en JavaScript, et pour un site Wix la liste de ses pages (page du jeu souvent sous
+   `/games/<nom>` ; une page `/<nom>` peut n'être qu'une annonce). Obligatoire quand la fiche annonce un livret
+   dans une langue sans lien (« 説明書：日本語・英語 ») — cas de Chatlat.
 4. Sinon : `"<nom>" rules pdf`, `<titre lu> 説明書`, `<titre lu> ルール`, `"<nom>" Spielregel`…
 Seule une page qui nomme le jeu compte. Jeu japonais toujours introuvable : `references/introuvable.md`.
 
