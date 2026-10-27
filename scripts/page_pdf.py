@@ -470,7 +470,9 @@ def main():
                     sys.exit(f"ERREUR : page vide ou inaccessible : {url}")
                 doc = lxml.html.fromstring(dom, base_url=url)
                 doc.make_links_absolute(url)
-                trouves = doc.xpath(a.xpath)
+                # page gardée par --garder (déjà réduite aux blocs) : reprise telle quelle, l'XPath ne s'y applique plus
+                garde = doc.xpath("//meta[@name='page_pdf-garder']")
+                trouves = doc.xpath("//body/div[@class='page']") if garde else doc.xpath(a.xpath)
                 if not trouves:
                     sys.exit(f"ERREUR : l'XPath ne trouve rien sur {url}")
                 html = []
@@ -481,13 +483,15 @@ def main():
                     n_txt += compter(el.text_content())
                     n_img += len(el.xpath(".//img[@src]"))
                     html.append(lxml.html.tostring(el, encoding="unicode"))
-                blocs.append(f'<div class="page">{"".join(html)}</div>')
+                blocs.append("".join(html) if garde else f'<div class="page">{"".join(html)}</div>')
             titre = f"<title>{a.titre}</title>" if a.titre else ""
             page = travail / "regles.html"
             page.write_text(f'<!doctype html><html><head><meta charset="utf-8">{titre}<style>{CSS}</style>'
                             f'</head><body>{"".join(blocs)}</body></html>', encoding="utf-8")
-            if garder:
-                shutil.copy(page, garder / "page_1.html")
+            if garder:  # repérée à la relecture par sa balise : l'XPath d'origine n'y trouverait plus rien
+                (garder / "page_1.html").write_text(page.read_text(encoding="utf-8").replace(
+                    '<meta charset="utf-8">', '<meta charset="utf-8"><meta name="page_pdf-garder">', 1),
+                    encoding="utf-8")
             lancer(nav, profil, [f"--print-to-pdf={sortie}", "--no-pdf-header-footer", page.as_uri()])
 
         if not sortie.exists():
